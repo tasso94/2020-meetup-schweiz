@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_149dcwi" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.0.0-alpha.3">
+  <bpmn:process id="spiel-zahl-raten" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0dlgjrk</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0dlgjrk" sourceRef="StartEvent_1" targetRef="Activity_1vmi6m8" />
+    <bpmn:userTask id="Activity_1vmi6m8" name="Spielmodus wählen" camunda:assignee="demo">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="spielmodus" label="Spielmodus" type="enum">
+            <camunda:value id="leicht" name="leicht" />
+            <camunda:value id="schwer" name="schwer" />
+          </camunda:formField>
+          <camunda:formField id="maximalZahl" label="Maximal Zahl" type="long" defaultValue="100" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0dlgjrk</bpmn:incoming>
+      <bpmn:outgoing>Flow_0faxdnt</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_0c41udq" name="Spielmodus?">
+      <bpmn:extensionElements>
+        <camunda:executionListener event="start">
+          <camunda:script scriptFormat="javascript">execution.setVariable("tipp", S("{\"runde\": 1}"));</camunda:script>
+        </camunda:executionListener>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1erqlr4</bpmn:incoming>
+      <bpmn:outgoing>Flow_1l5o5lc</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1pvmnm1</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0faxdnt" sourceRef="Activity_1vmi6m8" targetRef="Activity_1qe9xzk" />
+    <bpmn:sequenceFlow id="Flow_1l5o5lc" name="Leicht" sourceRef="Gateway_0c41udq" targetRef="zahl-raten-leicht">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${spielmodus == "leicht"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1pvmnm1" name="Schwer" sourceRef="Gateway_0c41udq" targetRef="zahl-raten-schwer">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${spielmodus == "schwer"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_197wfi7" sourceRef="zahl-raten-leicht" targetRef="Gateway_0nxv4gw" />
+    <bpmn:userTask id="zahl-raten-leicht" name="Zahl raten" camunda:formKey="embedded:deployment:/zahl-raten.html" camunda:assignee="demo">
+      <bpmn:incoming>Flow_1l5o5lc</bpmn:incoming>
+      <bpmn:incoming>Flow_0vafrhj</bpmn:incoming>
+      <bpmn:outgoing>Flow_197wfi7</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_0zkdgpv" sourceRef="zahl-raten-schwer" targetRef="Gateway_16mnbid" />
+    <bpmn:userTask id="zahl-raten-schwer" name="Zahl raten" camunda:formKey="embedded:deployment:/zahl-raten.html" camunda:assignee="demo">
+      <bpmn:incoming>Flow_1pvmnm1</bpmn:incoming>
+      <bpmn:incoming>Flow_0covia1</bpmn:incoming>
+      <bpmn:outgoing>Flow_0zkdgpv</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_0nxv4gw" name="Richtig geraten?">
+      <bpmn:incoming>Flow_197wfi7</bpmn:incoming>
+      <bpmn:outgoing>Flow_1bre8rb</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0sabk58</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_1bre8rb" name="Nein" sourceRef="Gateway_0nxv4gw" targetRef="tipp-geben">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${geraten != loesung}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="Gateway_16mnbid" name="Richtig geraten?">
+      <bpmn:incoming>Flow_0zkdgpv</bpmn:incoming>
+      <bpmn:outgoing>Flow_0covia1</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1quj5m2</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0covia1" name="Nein" sourceRef="Gateway_16mnbid" targetRef="zahl-raten-schwer">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${geraten != loesung}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="Gateway_0y49gf1">
+      <bpmn:incoming>Flow_0sabk58</bpmn:incoming>
+      <bpmn:incoming>Flow_1quj5m2</bpmn:incoming>
+      <bpmn:outgoing>Flow_0m8c3b8</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0sabk58" name="Ja" sourceRef="Gateway_0nxv4gw" targetRef="Gateway_0y49gf1">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${geraten == loesung}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1quj5m2" name="Ja" sourceRef="Gateway_16mnbid" targetRef="Gateway_0y49gf1">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${geraten == loesung}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:endEvent id="Event_19iwzgg">
+      <bpmn:incoming>Flow_00b5gli</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0m8c3b8" sourceRef="Gateway_0y49gf1" targetRef="Activity_1jv5gpp" />
+    <bpmn:sequenceFlow id="Flow_00b5gli" sourceRef="Activity_1jv5gpp" targetRef="Event_19iwzgg" />
+    <bpmn:scriptTask id="Activity_1qe9xzk" name="Lösung festlegen" scriptFormat="javascript" camunda:resultVariable="loesung">
+      <bpmn:incoming>Flow_0faxdnt</bpmn:incoming>
+      <bpmn:outgoing>Flow_1erqlr4</bpmn:outgoing>
+      <bpmn:script>Math.floor(Math.random() * maximalZahl)</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_1erqlr4" sourceRef="Activity_1qe9xzk" targetRef="Gateway_0c41udq" />
+    <bpmn:userTask id="Activity_1jv5gpp" name="Erfolg feiern&#10;🥳🎉🎊🍾🍻" camunda:assignee="demo">
+      <bpmn:incoming>Flow_0m8c3b8</bpmn:incoming>
+      <bpmn:outgoing>Flow_00b5gli</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:businessRuleTask id="tipp-geben" name="Tipp geben" camunda:resultVariable="tipp" camunda:decisionRef="tipp-geben" camunda:mapDecisionResult="singleEntry">
+      <bpmn:incoming>Flow_1bre8rb</bpmn:incoming>
+      <bpmn:outgoing>Flow_0vafrhj</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:sequenceFlow id="Flow_0vafrhj" sourceRef="tipp-geben" targetRef="zahl-raten-leicht" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="spiel-zahl-raten">
+      <bpmndi:BPMNEdge id="Flow_0vafrhj_di" bpmnElement="Flow_0vafrhj">
+        <di:waypoint x="800" y="100" />
+        <di:waypoint x="710" y="100" />
+        <di:waypoint x="710" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1erqlr4_di" bpmnElement="Flow_1erqlr4">
+        <di:waypoint x="500" y="247" />
+        <di:waypoint x="555" y="247" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_00b5gli_di" bpmnElement="Flow_00b5gli">
+        <di:waypoint x="1300" y="247" />
+        <di:waypoint x="1362" y="247" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0m8c3b8_di" bpmnElement="Flow_0m8c3b8">
+        <di:waypoint x="1155" y="247" />
+        <di:waypoint x="1200" y="247" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1quj5m2_di" bpmnElement="Flow_1quj5m2">
+        <di:waypoint x="1035" y="310" />
+        <di:waypoint x="1130" y="310" />
+        <di:waypoint x="1130" y="272" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1077" y="313" width="12" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0sabk58_di" bpmnElement="Flow_0sabk58">
+        <di:waypoint x="1035" y="180" />
+        <di:waypoint x="1130" y="180" />
+        <di:waypoint x="1130" y="222" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1077" y="162" width="12" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0covia1_di" bpmnElement="Flow_0covia1">
+        <di:waypoint x="1010" y="335" />
+        <di:waypoint x="1010" y="380" />
+        <di:waypoint x="710" y="380" />
+        <di:waypoint x="710" y="350" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="849" y="393" width="23" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1bre8rb_di" bpmnElement="Flow_1bre8rb">
+        <di:waypoint x="1010" y="155" />
+        <di:waypoint x="1010" y="100" />
+        <di:waypoint x="900" y="100" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="924" y="82" width="23" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0zkdgpv_di" bpmnElement="Flow_0zkdgpv">
+        <di:waypoint x="760" y="310" />
+        <di:waypoint x="985" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_197wfi7_di" bpmnElement="Flow_197wfi7">
+        <di:waypoint x="760" y="180" />
+        <di:waypoint x="985" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pvmnm1_di" bpmnElement="Flow_1pvmnm1">
+        <di:waypoint x="580" y="272" />
+        <di:waypoint x="580" y="310" />
+        <di:waypoint x="660" y="310" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="590" y="313" width="37" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1l5o5lc_di" bpmnElement="Flow_1l5o5lc">
+        <di:waypoint x="580" y="222" />
+        <di:waypoint x="580" y="180" />
+        <di:waypoint x="660" y="180" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="594" y="163" width="30" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0faxdnt_di" bpmnElement="Flow_0faxdnt">
+        <di:waypoint x="340" y="247" />
+        <di:waypoint x="400" y="247" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0dlgjrk_di" bpmnElement="Flow_0dlgjrk">
+        <di:waypoint x="188" y="247" />
+        <di:waypoint x="240" y="247" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="229" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0xd8tka_di" bpmnElement="Activity_1vmi6m8">
+        <dc:Bounds x="240" y="207" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0c41udq_di" bpmnElement="Gateway_0c41udq" isMarkerVisible="true">
+        <dc:Bounds x="555" y="222" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="608" y="240" width="64" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_00vk0za_di" bpmnElement="zahl-raten-leicht">
+        <dc:Bounds x="660" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_17nj9qu_di" bpmnElement="zahl-raten-schwer">
+        <dc:Bounds x="660" y="270" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0nxv4gw_di" bpmnElement="Gateway_0nxv4gw" isMarkerVisible="true">
+        <dc:Bounds x="985" y="155" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="970" y="212" width="81" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_16mnbid_di" bpmnElement="Gateway_16mnbid" isMarkerVisible="true">
+        <dc:Bounds x="985" y="285" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="969" y="263" width="81" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0y49gf1_di" bpmnElement="Gateway_0y49gf1" isMarkerVisible="true">
+        <dc:Bounds x="1105" y="222" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_19iwzgg_di" bpmnElement="Event_19iwzgg">
+        <dc:Bounds x="1362" y="229" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1qe9xzk_di" bpmnElement="Activity_1qe9xzk">
+        <dc:Bounds x="400" y="207" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1bkyj9a_di" bpmnElement="Activity_1jv5gpp">
+        <dc:Bounds x="1200" y="207" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ln0dgz_di" bpmnElement="tipp-geben">
+        <dc:Bounds x="800" y="60" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

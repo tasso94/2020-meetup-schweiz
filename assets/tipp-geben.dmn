@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" xmlns:dmndi="https://www.omg.org/spec/DMN/20191111/DMNDI/" xmlns:dc="http://www.omg.org/spec/DMN/20180521/DC/" id="Definitions_1e4fjzu" name="DRD" namespace="http://camunda.org/schema/1.0/dmn" exporter="Camunda Modeler" exporterVersion="4.0.0-alpha.3">
+  <decision id="tipp-geben" name="Tipp geben">
+    <variable id="InformationItem_14hqptp" name="tipp" />
+    <literalExpression id="LiteralExpression_19vqoss" expressionLanguage="feel">
+      <text>{
+  runde: sum(tipp.runde, 1),
+  tipp1: ["Lösung ist ", 
+         (if (loesung &lt; geraten) then 
+           "kleiner" 
+         else 
+           "größer")],
+  tipp2: ["Lösung ist ", 
+         (if odd(loesung) then 
+           "ungerade" 
+         else 
+           "gerade")],
+  tipp3: ["Lösung lautet ", loesung]
+}</text>
+    </literalExpression>
+  </decision>
+  <dmndi:DMNDI>
+    <dmndi:DMNDiagram>
+      <dmndi:DMNShape id="DMNShape_0hdzsss" dmnElementRef="tipp-geben">
+        <dc:Bounds height="80" width="180" x="100" y="100" />
+      </dmndi:DMNShape>
+    </dmndi:DMNDiagram>
+  </dmndi:DMNDI>
+</definitions>

@@ -1,0 +1,76 @@
+<form name="zahlRaten" role="form">
+
+  <script cam-script type="text/form-script">
+
+    $scope.processInstanceId = camForm.options.processInstanceId;
+
+    camForm.on('form-loaded', function() {
+      camForm.variableManager.fetchVariable('maximalZahl');
+    });
+
+    camForm.on('variables-fetched', function() {
+      $scope.maximalZahl = camForm.variableManager.variable('maximalZahl').value;
+    });
+
+    inject(['Uri', function(Uri) {
+
+      camForm.on('form-loaded', function() {
+        fetch(Uri.appUri('engine://engine/:engine/task/' + camForm.taskId + '/variables/tipp'), {
+          method: 'get',
+          headers: {
+            "Content-Type": 'application/json'
+          }
+        }).then(response => {
+          if (response.status === 200) {
+
+            response.json().then(json => {
+              $scope.tipp = json.value;
+              $scope.$apply();
+            });
+          } else {
+
+          }
+        });
+      });
+    }]);
+  </script>
+
+  <p><strong>Maximal Zahl:</strong> {{maximalZahl}}</p>
+  <p ng-if="tipp.runde">
+    <strong>Runde:</strong> {{tipp.runde}}
+  </p>
+
+  <div ng-if="tipp.tipp1">
+    <details>
+      <summary>Tipp 1</summary>
+      {{tipp.tipp1.join('')}}
+    </details>
+
+    <details>
+      <summary>Tipp 2</summary>
+      {{tipp.tipp2.join('')}}
+    </details>
+
+    <details>
+      <summary>Tipp 3</summary>
+      {{tipp.tipp3.join('')}}
+    </details>
+  </div><br>
+
+  <div class="control-group">
+    <label for="zahl">Raten: </label>
+    <div class="controls">
+      <input id="zahl"
+             class="form-control"
+             type="text"
+             cam-variable-name="geraten"
+             cam-variable-type="Integer" />
+    </div>
+  </div><br>
+
+  <details>
+    <summary>Process Instance Id</summary>
+    {{processInstanceId}}
+  </details>
+
+</form>
